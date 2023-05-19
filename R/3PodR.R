@@ -35,6 +35,7 @@ suppressPackageStartupMessages({
 
 read_deg <- function(file) {
   file %>%
+    read_csv() %>%
     select(1:3) %>%
     rename(Symbol = 1, log2FoldChange = 2, pvalue = 3) %>%
     filter(if_all(everything(), ~ . != '')) %>%
