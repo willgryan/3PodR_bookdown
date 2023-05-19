@@ -1,35 +1,55 @@
-###Load packages and global functions###
+### Load packages
 suppressPackageStartupMessages({
-  if (!require("pacman"))
-    install.packages("pacman")
-  library(pacman)
-  p_load(magrittr, tidyverse, HGNChelper, purrr, ggpubr, ggrepel, pheatmap, knitr, BioPathNet, drugfindR, jsonlite, httr, enrichR, factoextra, babelgene, ggVennDiagram, PAVER, ggupset, DT, circlize, seriation, randomcoloR, ComplexHeatmap)
-  set.seed(123)
+  #Packages have to be loaded individually for renv static analysis
+  library(magrittr)
+  library(tidyverse)
+  library(HGNChelper)
+  library(purrr)
+  library(ggpubr)
+  library(ggrepel)
+  library(pheatmap)
+  library(knitr)
+  library(BioPathNet)
+  library(drugfindR)
+  library(jsonlite)
+  library(httr)
+  library(enrichR)
+  library(factoextra)
+  library(babelgene)
+  library(ggVennDiagram)
+  library(PAVER)
+  library(ggupset)
+  library(DT)
+  library(circlize)
+  library(seriation)
+  library(randomcoloR)
+  library(ComplexHeatmap)
+  
   source("R/utils.R")
+  
+  set.seed(123)
+  
 })
 
-###Define functions###
+### Functions for reading in transcriptomic data
 
-#Input: file path to DEG file
-read_deg <- function(X) {
-  X %>%
-    read_csv() %>%
+read_deg <- function(file) {
+  file %>%
     select(1:3) %>%
     rename(Symbol = 1, log2FoldChange = 2, pvalue = 3) %>%
     filter(if_all(everything(), ~ . != '')) %>%
     drop_na() %>%
-    mutate(Symbol = str_squish(Symbol)) %>%
+    mutate(Symbol = str_trim(Symbol)) %>%
     distinct(Symbol, .keep_all = TRUE)
 }
 
-#Input: file path to counts file
-read_counts <- function(X) {
-  X %>%
+read_counts <- function(file) {
+  file %>%
     read_csv() %>%
     rename(Symbol = 1) %>%
     filter(if_all(everything(), ~ . != '')) %>%
     drop_na() %>%
-    mutate(Symbol = str_squish(Symbol)) %>%
+    mutate(Symbol = str_trim(Symbol)) %>%
     distinct(Symbol, .keep_all = TRUE)
 }
 
@@ -86,6 +106,8 @@ if (!is_empty(global_state$design) & !is_empty(global_state$counts)) {
     #Correct HGNC symbols of the counts if human data
     global_state$counts %<>% fix_hgnc(global_state$humanmap)
   }
+} else {
+  global_state$using_counts <- FALSE
 }
 
 #Load input DEG data
