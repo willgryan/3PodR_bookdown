@@ -1,0 +1,36 @@
+--- 
+title: "A 3 Pod Report"
+author: "CDRL"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: scrreprt
+bibliography: [book.bib, packages.bib]
+link-citations: yes
+---
+
+# About 
+
+This is a 3 Pod Report.
+
+```{r 3PodR, include=FALSE}
+###Global options
+knitr::opts_chunk$set(
+  message = F,
+  warning = F,
+  echo = F,
+  out.width = '100%',
+  out.height = '100%',
+  fig.align = 'center'
+)
+options(readr.show_col_types = FALSE,
+        timeout = 999)
+
+source("R/3PodR.R", local = knitr::knit_global())
+```
+
+```{r, include=FALSE}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown'
+), 'packages.bib')
+```

@@ -1,0 +1,27 @@
+### `r .$name`
+
+We identified **`r nrow(.$results$lincs$concordant_moa_report)`** unique concordant MOAs and **`r nrow(.$results$lincs$discordant_moa_report)`** unique discordant MOAs.
+
+```{r}
+#Input: Annotated DrugFindr investigate signature results
+format_moa_results <- function(X) {
+  X %>%
+    select(MOA = integratedMoas, N)
+
+}
+make_table(.$results$lincs$concordant_moa_report %>% format_moa_results, caption = paste0(.$name, " Top Concordant MOAs"))
+make_table(.$results$lincs$discordant_moa_report %>% format_moa_results, caption = paste0(.$name, " Top Discordant MOAs"))
+```
+
+We also identified **`r nrow(.$results$lincs$concordant_gene_report)`** unique concordant gene targets and **`r nrow(.$results$lincs$discordant_gene_report)`** unique discordant gene targets.
+
+```{r}
+#Input: Annotated DrugFindr investigate signature results
+format_gene_results <- function(X) {
+  X %>%
+    rename(N = n)
+
+}
+make_table(.$results$lincs$concordant_gene_report %>% format_gene_results, caption = paste0(.$name, " Top Concordant Gene Targets"))
+make_table(.$results$lincs$discordant_gene_report %>% format_gene_results, caption = paste0(.$name, " Top Discordant Gene Targets"))
+```

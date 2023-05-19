@@ -1,0 +1,73 @@
+# GSEA
+
+This is GSEA.
+
+## Pathways
+
+These are GSEA pathways.
+
+```{r, results='asis'}
+global_state$data %<>%
+  map(~ update_list(
+    .,
+    bpn = do_gsea_pod(
+      .$bpn,
+      gmtfile = paste0("extdata/", global_state$gmt),
+      rankWithSignificance = TRUE,
+      species = NULL
+    )
+  ))
+
+
+global_state$data %>%
+  map(~ knit_child(
+    "Rmd/gsea_pathways.Rmd",
+    envir = environment(),
+    quiet = TRUE
+  )) %>%
+  list_c() %>%
+  cat(sep = "\n")
+``` 
+
+## Leading Edge
+
+These are leading edge genes.
+
+```{r, results='asis'}
+global_state$data %<>%
+   map(~ update_list(., bpn = do_leading_pod(.$bpn)))
+
+global_state$data %>%
+  map(~ knit_child(
+    "Rmd/gsea_le.Rmd",
+    envir = environment(),
+    quiet = TRUE
+  )) %>%
+  list_c() %>%
+  cat(sep = "\n")
+``` 
+
+## PAVER
+
+These are PAVER plots of the pathways from all comparisons
+
+```{r, results='asis'}
+input = global_state$data %>%
+  map(~ bind_rows(.$bpn@gsea@sig_pos_enriched, .$bpn@gsea@sig_neg_enriched)) %>%
+  bind_rows(.id = "Group") %>%
+  select(GOID = pathway, NES, Group) %>%
+  mutate(GOID = str_split_i(GOID, "%", -1)) %>%
+  distinct(GOID, Group, .keep_all = T) %>%
+  pivot_wider(names_from = Group, values_from = NES)
+
+GSEA_PAVER_result <- quiet(PAVER::prepare_data(input, global_state$embeddings, global_state$ontology_index) %>%
+  PAVER::generate_themes())
+
+global_state$results <- c(global_state$results, lst(GSEA_PAVER_result))
+
+list(GSEA_PAVER_result, "NES") %>%
+  knit_child(text = readLines("Rmd/paver_report.Rmd"),
+             envir = environment(),
+             quiet = TRUE) %>%
+  cat(sep = "\n")
+```

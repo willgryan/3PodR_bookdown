@@ -1,0 +1,47 @@
+### Theme Plot
+
+```{r}
+PAVER_theme_plot(.[[1]]) +
+  theme(
+    legend.position = "bottom",
+    legend.box = "vertical",
+    legend.margin = margin(),
+    legend.spacing.y = unit(-0.15, 'cm')
+  ) +
+  guides(
+    colour = guide_legend(
+      ncol = 2,
+      title = NULL,
+      label.theme = element_text(size = 7),
+      byrow = T,
+      order = 2
+    ),
+    shape = guide_legend(
+      byrow = T,
+      title = NULL,
+      label.theme = element_text(size = 7),
+      order = 1
+    )
+  )
+```
+
+### Regulation Plot
+
+```{r}
+PAVER_regulation_plot(.[[1]])
+```
+
+### Interpretation Plot
+
+```{r}
+x <- PAVER_interpretation_plot(.[[1]])
+x$layers[[2]] <- NULL
+x + geom_text_repel(size = 3) -> x
+print(x)
+```
+
+### Heatmap Plot
+
+```{r}
+PAVER_hunter_plot(.[[1]], unit = .[[2]])
+```

@@ -1,0 +1,22 @@
+###User Input Data
+species: human
+design: "design.csv"
+counts: "counts.csv"
+data:
+    - 
+        group1: "Disease A"
+        group2: "Control A"
+        file: "DAvsCA.csv"
+    - 
+        group1: "Disease B"
+        group2: "Control B"
+        file: "DBvsCB.csv"
+###Assets
+humanmap: "assets/HGNChelper_currentHumanMap_2023-05-06.csv"
+hgnc: "assets/hgnc_complete_set_2023-05-06.csv"
+rgd: "assets/GENES_RAT_2023-05-06.csv"
+mgi: "assets/MRK_List2_2023-05-06.csv"
+gmt: "assets/Human_GOALL_no_GO_iea_May_01_2023_symbol.gmt"
+lincs_fda: "assets/LINCS_FDA_Phases_2023-05-05.csv"
+embeddings: "assets/embeddings_2023-03-06.RDS"
+ontology_index: "assets/ontology_2023-03-06.RDS"

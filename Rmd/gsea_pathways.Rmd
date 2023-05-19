@@ -1,0 +1,30 @@
+### `r .$name`
+
+A total of **`r sum(.$bpn@gsea@num_sig_pos_enriched, .$bpn@gsea@num_sig_neg_enriched)`** significantly altered pathways were identified in treatment groups compared to control groups (adjusted p-value <= 0.05) on DEG (**n = `r nrow(.$data)`**), using Gene Set Enrichment Analysis, **GSEA**. Of which, we identified **`r .$bpn@gsea@num_sig_pos_enriched`** up-regulated pathways & **`r .$bpn@gsea@num_sig_neg_enriched`** down-regulated pathways.
+
+* Number of pathways tested: **`r .$bpn@gsea@num_tested `**
+* Number of significantly altered pathways (padj <= 0.05): **`r sum(.$bpn@gsea@num_sig_pos_enriched,.$bpn@gsea@num_sig_neg_enriched)`**
+* Number of significantly up-regulated pathways: **`r .$bpn@gsea@num_sig_pos_enriched`**
+* Number of significantly down-regulated pathways: **`r .$bpn@gsea@num_sig_neg_enriched`**
+
+```{r}
+format_gsea_pathways <- function(X) {
+  X %>%
+    arrange(padj, desc(NES)) %>%
+    select(Term = pathway, padj, NES, leadingEdge) %>%
+    mutate(
+      Term = gsub("%.*", "", Term) %>% str_to_sentence,
+      padj = round(padj, 3),
+      NES = round(NES, 3)
+    )
+}
+
+make_table(
+  .$bpn@gsea@sig_pos_enriched %>% format_gsea_pathways,
+  caption = paste0(.$name, " Top Up-Regulated Pathways")
+) %>% formatStyle("Term","white-space"="nowrap")
+make_table(
+  .$bpn@gsea@sig_neg_enriched %>% format_gsea_pathways,
+  caption = paste0(.$name, " Bottom Down-Regulated Pathways")
+) %>% formatStyle("Term","white-space"="nowrap")
+```

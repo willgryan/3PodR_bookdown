@@ -1,0 +1,29 @@
+### `r .$name`
+
+A total of **`r sum(nrow(.$results$lincs$concordant_pathways), nrow(.$results$lincs$discordant_pathways))`** significantly altered pathways were identified in the concordant and discordant gene targets. Of which, we identified **`r nrow(.$results$lincs$concordant_pathways)`** up-regulated pathways & **`r nrow(.$results$lincs$discordant_pathways)`** down-regulated pathways.
+
+* Number of significantly identified pathways (padj <= 0.05): **`r sum(nrow(.$results$lincs$concordant_pathways), nrow(.$results$lincs$discordant_pathways))`**
+* Number of significantly concordant pathways: **`r nrow(.$results$lincs$concordant_pathways)`**
+* Number of significantly discordant pathways: **`r nrow(.$results$lincs$discordant_pathways)`**
+
+```{r}
+format_lincs_pathways <- function(X) {
+  X %>%
+    arrange(desc(Combined.Score), Adjusted.P.value) %>%
+    select(Term, padj = Adjusted.P.value, CS = Combined.Score, Genes) %>%
+    mutate(
+      Term = gsub("\\(([^)]+)\\)", "", Term) %>% str_to_sentence,
+      padj = round(padj, 3),
+      CS = round(CS, 3)
+    )
+}
+
+make_table(
+  .$results$lincs$concordant_pathways %>% format_lincs_pathways,
+  caption = paste0(.$name, " Top Concordant Pathways")
+) %>% formatStyle("Term","white-space"="nowrap")
+make_table(
+  .$results$lincs$discordant_pathways %>% format_lincs_pathways,
+  caption = paste0(.$name, " Bottom Discordant Pathways")
+) %>% formatStyle("Term","white-space"="nowrap")
+```

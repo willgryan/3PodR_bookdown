@@ -1,0 +1,20 @@
+### `r .$name`
+
+```{r}
+format_le_genes <- function(X, data) {
+  X %>%
+    rename(Symbol = 1, N = 2) %>%
+    arrange(desc(N)) %>%
+    inner_join(global_state$map, by = "Symbol") %>%
+    inner_join(data, by = "Symbol") %>%
+    relocate(Symbol, Name) %>%
+    mutate(across(.cols = c(log2FoldChange, pvalue), .fns = ~ round(.x, 3)))
+}
+
+make_table(format_le_genes(.$bpn@leading@count_leading_up, .$data),
+  caption = paste0(.$name, " Top Leading Edge Genes")
+)
+make_table(format_le_genes(.$bpn@leading@count_leading_down, .$data),
+  caption = paste0(.$name, " Bottom Leading Edge Genes")
+)
+```

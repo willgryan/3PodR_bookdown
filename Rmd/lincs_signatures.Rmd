@@ -1,0 +1,31 @@
+### `r .$name`
+
+We identified **`r nrow(.$results$lincs$concordant)`** L1000 signatures positively correlated and **`r nrow(.$results$lincs$discordant)`** L1000 signatures negatively correlated to our gene signature.
+
+```{r}
+#Input: Annotated DrugFindr investigate signature results
+format_ilincs_results <- function(X) {
+  X %>%
+    mutate(Similarity = round(Similarity, 3)) %>%
+    select(
+      Similarity,
+      Perturbagen = Target,
+      MOA = integratedMoas,
+      GeneTargets,
+      Cell = TargetCellLine,
+      Tissue = tissue,
+      Concentration = TargetConcentration,
+      Time = TargetTime,
+      `FDA Phase` = max_fda_phase
+    )
+  
+}
+make_table(
+  .$results$lincs$concordant %>% format_ilincs_results,
+  caption = paste0(.$name, " Top Concordant Signatures")
+) %>% formatStyle("MOA", "white-space" = "nowrap") %>% formatStyle("GeneTargets", "white-space" = "nowrap") %>% formatStyle("Perturbagen", "white-space" = "nowrap")
+make_table(
+  .$results$lincs$discordant %>% format_ilincs_results,
+  caption = paste0(.$name, " Top Discordant Signatures")
+) %>% formatStyle("MOA", "white-space" = "nowrap") %>% formatStyle("GeneTargets", "white-space" = "nowrap") %>% formatStyle("Perturbagen", "white-space" = "nowrap")
+```

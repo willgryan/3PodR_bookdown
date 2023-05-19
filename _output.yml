@@ -1,0 +1,8 @@
+bookdown::gitbook:
+  split_by: none
+  self_contained: true
+  css: style.css
+  config:
+    search: false
+    sharing: null
+    download: false

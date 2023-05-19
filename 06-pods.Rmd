@@ -1,0 +1,203 @@
+# Pods
+
+These are all possible overlaps of pathways across all possible comparisons.
+
+```{r}
+plot = global_state$results %>%
+  map( ~ pluck(., "prepared_data")) %>%
+  set_names(c("GSEA", "Enrichr", "LINCS")) %>%
+  bind_rows(.id = "Pod") %>%
+  mutate(ID = paste0(Group, "_", Pod)) %>%
+  select(ID, GOID) %>%
+  group_by(GOID) %>%
+  summarise(ID = list(ID)) %>%
+  filter(!(str_detect(ID, "LINCS") & !str_detect(ID, "GSEA|Enrichr"))) %>%
+  ggplot(aes(x = ID)) +
+  geom_bar() +
+  theme_pubr() +
+  scale_x_upset() +
+  labs(x = NULL, y = "Pathways")
+
+plot
+
+```
+
+## 2 Pod
+
+These are overlaps between each datasets GSEA and EnrichR results
+
+```{r, results='asis'}
+plots = global_state$results %>%
+  map( ~ pluck(., "prepared_data")) %>%
+  set_names(c("GSEA", "Enrichr", "LINCS")) %>%
+  bind_rows(.id = "Pod") %>%
+  filter(Pod != "LINCS") %>%
+  group_by(Group, Pod) %>%
+  summarise(GOID = list(GOID)) %>%
+  group_by(Group) %>%
+  nest() %>%
+  transmute(Group, data = map(data, ~deframe(.))) %>%
+  deframe() %>%
+  map(~ ggVennDiagram(.))
+
+data = global_state$results %>%
+  map(~ pluck(., "prepared_data")) %>%
+  set_names(c("GSEA", "Enrichr", "LINCS")) %>%
+  bind_rows(.id = "Pod") %>%
+  filter(Pod != "LINCS") %>%
+  mutate(value = ifelse(Pod == "Enrichr" | Pod == "LINCS", sign(value) * 2^(abs(value)-1), value)) %>%
+  group_by(Group) %>%
+  nest %>%
+  deframe() %>%
+  map(
+    ~ list(
+      `Top 10` = .x %>% 
+        filter(sign(value) == 1) %>%
+        group_by(GOID) %>%
+        mutate(duplicated = n() > 1) %>%
+        filter(duplicated) %>%
+        ungroup() %>%
+        select(GOID, Pod, value) %>%
+        pivot_wider(names_from = "Pod", values_from = "value") %>%
+        {if(ncol(.) != 1) . = arrange(., desc(GSEA), desc(Enrichr)); .} %>%
+        inner_join(global_state$results$GSEA_PAVER_result$goterms_df) %>%
+        select(-GOID),
+      `Bottom 10` = .x %>% 
+        filter(sign(value) == -1) %>%
+        group_by(GOID) %>%
+        mutate(duplicated = n() > 1) %>%
+        filter(duplicated) %>%
+        ungroup() %>%
+        select(GOID, Pod, value) %>%
+        pivot_wider(names_from = "Pod", values_from = "value") %>%
+        {if(ncol(.) != 1) . = arrange(., GSEA, Enrichr); .} %>%
+        inner_join(global_state$results$GSEA_PAVER_result$goterms_df) %>%
+        select(-GOID)
+    )
+  )
+
+global_state$results <- c(global_state$results, list(`twopoddata` = data))
+
+list(names(plots) %>% as.list(), plots, data) %>%
+  pmap(~ knit_child(
+    text = c(
+      '',
+      '### `r ..1`',
+      '',
+      '```{r}',
+      'print(..2)',
+      'make_table(..3[[1]], caption = \'Shared Upregulated Pathways\')',
+      'make_table(..3[[2]], caption = \'Shared Downregulated Pathways\')',
+      '```',
+      ''
+    ),
+    envir = environment(),
+    quiet = TRUE
+  )) %>%
+  list_c() %>%
+  cat(sep = "\n")
+```
+
+## 3 Pod
+
+These are overlaps between each datasets GSEA and EnrichR and LINCS results
+
+```{r, results='asis'}
+plots = global_state$results %>%
+  map( ~ pluck(., "prepared_data")) %>%
+  compact() %>%
+  set_names(c("GSEA", "Enrichr", "LINCS")) %>%
+  bind_rows(.id = "Pod") %>%
+  group_by(Group, Pod) %>%
+  summarise(GOID = list(GOID)) %>%
+  group_by(Group) %>%
+  nest() %>%
+  transmute(Group, data = map(data, ~deframe(.))) %>%
+  deframe() %>%
+  map(~ ggVennDiagram(.))
+
+data = global_state$results %>%
+  map(~ pluck(., "prepared_data")) %>%
+  compact() %>%
+  set_names(c("GSEA", "Enrichr", "LINCS")) %>%
+  bind_rows(.id = "Pod") %>%
+  mutate(value = ifelse(Pod == "Enrichr" | Pod == "LINCS", sign(value) * 2^(abs(value)-1), value)) %>%
+  group_by(Group) %>%
+  nest %>%
+  deframe() %>%
+  map(
+    ~ list(
+      `Top 10` = .x %>% 
+        filter(sign(value) == 1) %>%
+        group_by(GOID) %>%
+        mutate(duplicated = n() > 2) %>%
+        filter(duplicated) %>%
+        ungroup() %>%
+        select(GOID, Pod, value) %>%
+        pivot_wider(names_from = "Pod", values_from = "value") %>%
+        {if(ncol(.) != 1) . = arrange(., desc(GSEA), desc(Enrichr)); .} %>%
+        inner_join(global_state$results$GSEA_PAVER_result$goterms_df) %>%
+        select(-GOID),
+      `Bottom 10` = .x %>% 
+        filter(sign(value) == -1) %>%
+        group_by(GOID) %>%
+        mutate(duplicated = n() > 2) %>%
+        filter(duplicated) %>%
+        ungroup() %>%
+        select(GOID, Pod, value) %>%
+        pivot_wider(names_from = "Pod", values_from = "value") %>%
+        {if(ncol(.) != 1) . = arrange(., GSEA, Enrichr); .} %>%
+        inner_join(global_state$results$GSEA_PAVER_result$goterms_df) %>%
+        select(-GOID)
+    )
+  )
+
+fourpoddata <- data %>% 
+  map(bind_rows) %>%
+  reduce(inner_join, by = "Term") %>%
+  select(Term)
+
+global_state$results <- c(global_state$results, lst(`threepoddata` = data, fourpoddata))
+
+list(names(plots) %>% as.list(), plots, data) %>%
+  pmap(~ knit_child(
+    text = c(
+      '',
+      '### `r ..1`',
+      '',
+      '```{r}',
+      'print(..2)',
+      'make_table(..3[[1]], caption = \'Shared Upregulated Pathways\')',
+      'make_table(..3[[2]], caption = \'Shared Downregulated Pathways\')',
+      '```',
+      ''
+    ),
+    envir = environment(),
+    quiet = TRUE
+  )) %>%
+  list_c() %>%
+  cat(sep = "\n")
+```
+
+<!-- ## 4th Pod -->
+```{r, results='asis'}
+if(nrow(global_state$results$fourpoddata) > 0) {
+  global_state$results$fourpoddata %>%
+    knitr::knit_child(
+    text = c(
+      '',
+      '## 4th Pod',
+      '',
+      'These are the overlaps between each 3 datasets 3rd pod.',
+      '',
+      '```{r}',
+      'make_table(.)',
+      '```',
+      ''
+    ),
+    envir = environment(),
+    quiet = TRUE
+  ) %>%
+    cat(sep = "\n")
+}
+```

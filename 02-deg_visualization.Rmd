@@ -1,0 +1,226 @@
+# Differentially Expressed Genes
+
+These are visualizations of the differentially expressed genes (DEGs).
+
+## Shared DEGs
+```{r}
+#Input: named list of DEG tables
+combined_deg_heatmap <- function(X, num_genes = 50) {
+  combined_degs <- X %>%
+    map(
+      ~ filter(., pvalue <= 0.05) %>%
+        arrange(desc(abs(log2FoldChange))) %>%
+        slice_head(n = num_genes) %>%
+        pull(Symbol)
+    ) %>%
+    flatten_chr() %>%
+    unique()
+  
+  mat <- X %>%
+    map( ~ filter(., Symbol %in% combined_degs) %>%
+           select(Symbol, log2FoldChange)) %>%
+    bind_rows(.id = "Group") %>%
+    pivot_wider(names_from = Group, values_from = log2FoldChange) %>%
+    column_to_rownames(var = "Symbol") %>%
+    drop_na() %>%
+    as.matrix()
+  
+  min = min(mat, na.rm = T)
+  max = max(mat, na.rm = T)
+  
+  lgd = ComplexHeatmap::Legend(
+    title = "log2FC",
+    col_fun = circlize::colorRamp2(c(min, 0, max), c("blue", "white", "red")),
+    at = c(min, 0, max),
+    labels = c(round(min, 2), 0, round(max, 2)),
+    direction = "vertical",
+    labels_gp = grid::gpar(fontsize = 8),
+    title_gp = grid::gpar(fontsize = 8)
+  )
+  
+  ht = ComplexHeatmap::Heatmap(
+    mat,
+    height = unit(1.25, "mm") * nrow(mat),
+    column_names_rot = 0,
+    column_names_gp = grid::gpar(fontsize = 8),
+    column_names_centered = TRUE,
+    row_names_gp = grid::gpar(fontsize = 4),
+    show_row_names = TRUE,
+    show_row_dend = FALSE,
+    show_heatmap_legend = FALSE
+  )
+  
+  ComplexHeatmap::draw(
+    ht,
+    padding = unit(c(2, 2, 2, 2), "mm"),
+    heatmap_legend_list = lgd,
+    heatmap_legend_side = "right"
+  )
+  
+}
+
+global_state$data %>%
+  map("data") %>%
+  combined_deg_heatmap()
+```
+
+## Volcano Plots
+```{r, results='asis'}
+#Input: DEG table
+volcano_plot <- function(X) {
+  top10 <- X %>%
+    filter(pvalue <= 0.05) %>%
+    arrange(desc(abs(log2FoldChange))) %>%
+    slice_head(n = 10) %>%
+    pull(Symbol)
+  
+  #label
+  ns <- paste0("NS (", sum(X$pvalue > 0.05), ")")
+  up <-
+    paste0("Up (", sum(X$pvalue <= 0.05 & X$log2FoldChange > 0), ")")
+  down <-
+    paste0("Down (", sum(X$pvalue <= 0.05 &
+                           X$log2FoldChange < 0), ")")
+  
+  plot <- X %>%
+    mutate(
+      Significant = case_when(
+        pvalue > 0.05 ~ "NS",
+        pvalue <= 0.05 & log2FoldChange >= 0 ~ "Up",
+        pvalue <= 0.05 & log2FoldChange < 0 ~ "Down"
+      ) %>% as.factor(),
+      top10label = if_else(Symbol %in% top10, Symbol, NA_character_)
+    ) %>%
+    ggplot(aes(
+      x = log2FoldChange,
+      y = -log10(pvalue),
+      col = Significant,
+      label = top10label
+    )) +
+    geom_point() +
+    scale_color_manual(labels = c(down, ns, up),
+                       values = c("blue", "black", "red")) +
+    geom_text_repel() +
+    geom_hline(linetype='dotted', yintercept = -log10(0.05), col = "black") +
+    theme_pubr()
+  return(plot)
+}
+
+global_state$data %>%
+  map( ~ knit_child(
+    text = c(
+      '',
+      '### `r .$name`',
+      '',
+      '```{r}',
+      'volcano_plot(.$data)',
+      '```',
+      ''
+    ),
+    envir = environment(),
+    quiet = TRUE
+  )) %>%
+  list_c() %>%
+  cat(sep = "\n")
+```
+
+<!-- ## Expression of Top DEGs -->
+```{r, results='asis'}
+#Input: globalstate$data list element
+group_count_heatmap <- function(X) {
+  data <- X$data
+  
+  lower <- round(quantile(data$log2FoldChange, 0.10), 3)
+  upper <- round(quantile(data$log2FoldChange, 0.90), 3)
+  
+  filtered <- data %>%
+    filter(pvalue <= 0.05, log2FoldChange >= upper | log2FoldChange <= lower) %>%
+    pull(Symbol)
+  
+  group_design <- global_state$design %>%
+    filter(Group %in% c(X$group1, X$group2))
+  
+  mat <- global_state$counts %>%
+    select(Symbol, group_design %>% pull(Sample)) %>%
+    filter(Symbol %in% filtered) %>%
+    column_to_rownames(var = "Symbol") %>%
+    as.matrix()
+  
+  mat = t(scale(t(mat)))
+  
+  row_order = seriate(dist(mat), method = "TSP") %>% get_order()
+  
+  min = min(mat, na.rm = T)
+  max = max(mat, na.rm = T)
+  
+  lgd = ComplexHeatmap::Legend(
+    title = NULL,
+    col_fun = circlize::colorRamp2(c(min, 0, max), c("blue", "white", "red")),
+    at = c(min, 0, max),
+    labels = c(round(min, 2), 0, round(max, 2)),
+    direction = "vertical",
+    labels_gp = grid::gpar(fontsize = 8)
+  )
+    
+  group_data = group_design$Group %>% as.factor()
+  
+  group_cols = distinctColorPalette(k = nlevels(group_data)) %>% set_names(levels(group_data))
+  
+  annotation = ComplexHeatmap::HeatmapAnnotation(
+    Group = group_data,
+    show_annotation_name = F,
+    col = list(Group = group_cols),
+    annotation_legend_param = list(
+      Group = list(
+        color_bar = "discrete",
+        title = NULL,
+        direction = "horizontal",
+        title_position = "topcenter",
+        title_gp = grid::gpar(fontsize = 8),
+        labels_gp = grid::gpar(fontsize = 8),
+        nrow = 1
+      )
+    )
+  )
+  
+  ht = ComplexHeatmap::Heatmap(
+    mat,
+    row_order = row_order,
+    top_annotation = annotation,
+    column_names_rot = 45,
+    column_names_gp = grid::gpar(fontsize = 8),
+    show_row_names = FALSE,
+    show_row_dend = FALSE,
+    show_heatmap_legend = FALSE
+  )
+  
+  ComplexHeatmap::draw(
+    ht,
+    padding = unit(c(2, 15, 2, 2), "mm"),
+    heatmap_legend_list = lgd,
+    heatmap_legend_side = "right",
+    annotation_legend_side = "top"
+  )
+
+}
+
+if(global_state$using_counts) {
+  global_state$data %>%
+    map( ~ knitr::knit_child(
+      text = c(
+        '',
+        '### `r .$name`',
+        '',
+        '```{r}',
+        'group_count_heatmap(.)',
+        '```',
+        ''
+      ),
+      envir = environment(),
+      quiet = TRUE
+    )) %>%
+    c("\n\n## Expression of Top DEGs\n\n", .) %>%
+    list_c() %>%
+    cat(sep = "\n")
+}
+```

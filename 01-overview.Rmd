@@ -1,0 +1,148 @@
+# Overview
+
+This is an overview of the transcriptomic data.
+
+<!-- ## Experimental Design -->
+```{r, results='asis'}
+if(global_state$using_counts) {
+  global_state$design %>%
+    knitr::knit_child(
+      text = c('',
+               '```{r}',
+               'make_table(.)',
+               '```',
+               ''),
+      envir = environment(),
+      quiet = TRUE
+    ) %>%
+    c("\n\n## Experimental Design\n\n", .) %>%
+    cat(sep = "\n")
+}
+```
+
+<!-- ## Sample PCA -->
+```{r, results='asis'}
+#Input: global state
+pca_plot <- function(X) {
+  plot_data = X$counts %>%
+    column_to_rownames("Symbol") %>%
+    t() %>%
+    prcomp(center = T, scale. = T)
+  
+  plot = plot_data %>%
+    fviz_pca_ind(
+      repel = TRUE,
+      habillage = X$design %>% dplyr::pull(Group),
+      addEllipses = T) + ggtitle(NULL)
+  
+  plot
+}
+
+if (global_state$using_counts) {
+  global_state %>%
+    knitr::knit_child(
+      text = c('',
+               '```{r}',
+               'pca_plot(.)',
+               '```',
+               ''),
+      envir = environment(),
+      quiet = TRUE) %>%
+    c("\n\n## Sample PCA\n\n", .) %>%
+    cat(sep = "\n")
+}
+```
+
+<!-- ## Gene Expression Heatmap -->
+```{r, results='asis'}
+#Input: global_state
+variable_genes_heatmap <- function(X, n = 500) {
+  mat = X$counts %>%
+    column_to_rownames(var = "Symbol") %>%
+    as.matrix()
+  
+  indices = apply(mat, 1, var) %>%
+    order(decreasing = T)
+  
+  mat = mat[indices[1:500], ]
+  mat = t(scale(t(mat)))
+  
+  row_order = seriate(dist(mat), method = "TSP") %>% get_order()
+  
+  min = min(mat, na.rm = T)
+  max = max(mat, na.rm = T)
+  
+  lgd = ComplexHeatmap::Legend(
+    title = NULL,
+    col_fun = circlize::colorRamp2(c(min, 0, max), c("blue", "white", "red")),
+    at = c(min, 0, max),
+    labels = c(round(min, 2), 0, round(max, 2)),
+    direction = "vertical",
+    labels_gp = grid::gpar(fontsize = 8)
+  )
+  
+  group_data = X$design$Group %>% as.factor()
+  
+  group_cols = distinctColorPalette(k = nlevels(group_data)) %>% set_names(levels(group_data))
+  
+  annotation = ComplexHeatmap::HeatmapAnnotation(
+    Group = group_data,
+    show_annotation_name = F,
+    col = list(Group = group_cols),
+    annotation_legend_param = list(
+      Group = list(
+        color_bar = "discrete",
+        title = NULL,
+        direction = "horizontal",
+        title_position = "topcenter",
+        title_gp = grid::gpar(fontsize = 8),
+        labels_gp = grid::gpar(fontsize = 8),
+        nrow = 1
+      )
+    )
+  )
+  
+  ht = ComplexHeatmap::Heatmap(
+    mat,
+    row_order = row_order,
+    top_annotation = annotation,
+    column_names_rot = 45,
+    column_names_gp = grid::gpar(fontsize = 8),
+    show_row_names = FALSE,
+    show_row_dend = FALSE,
+    show_heatmap_legend = FALSE
+  )
+  
+  ComplexHeatmap::draw(
+    ht,
+    padding = unit(c(2, 15, 2, 2), "mm"),
+    heatmap_legend_list = lgd,
+    heatmap_legend_side = "right",
+    annotation_legend_side = "top"
+  )
+  
+}
+
+if (global_state$using_counts) {
+  global_state %>%
+    knitr::knit_child(
+      text = c('',
+               '```{r}',
+               'variable_genes_heatmap(.)',
+               '```',
+               ''),
+      envir = environment(),
+      quiet = TRUE
+    ) %>%
+    c("\n\n## Gene Expression Heatmap\n\n", .) %>%
+    cat(sep = "\n")
+}
+```
+
+## Comparisons
+
+These are experimental comparisons analyzed in the report.
+
+```{r}
+make_table(tibble(Comparison = names(global_state$data)))
+```

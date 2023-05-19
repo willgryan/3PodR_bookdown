@@ -1,0 +1,5 @@
+rmd_files: ["index.Rmd", "01-overview.Rmd", "02-deg_visualization.Rmd", "03-gsea.Rmd", "04-enrichr.Rmd", "05-lincs.Rmd", "06-pods.Rmd", "07-reproducibility.Rmd"]
+delete_merged_file: true
+language:
+  ui:
+    chapter_name: "Chapter "

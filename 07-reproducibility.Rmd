@@ -1,0 +1,6 @@
+# Reproducibility
+
+```{r}
+sessionInfo()
+saveRDS(global_state, file = "global_state.RDS", compress = "xz")
+```
