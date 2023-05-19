@@ -3,3 +3,6 @@
 .Rdata
 .httr-oauth
 .DS_Store
+_bookdown_files
+_book
+packages.bib
