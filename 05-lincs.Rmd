@@ -45,7 +45,7 @@ get_ilincs_results <- function(X) {
         select(Symbol = human_symbol, Symbol_old = symbol)
       
       X <- X %>%
-        rename(Symbol_old = Symbol)
+        rename(Symbol_old = Symbol) %>%
         inner_join(orthologs, by = "Symbol_old") %>%
         select(-Symbol_old)
   }
