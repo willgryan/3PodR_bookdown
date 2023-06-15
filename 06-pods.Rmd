@@ -38,7 +38,7 @@ plots = global_state$results %>%
   nest() %>%
   transmute(Group, data = map(data, ~deframe(.))) %>%
   deframe() %>%
-  map(~ ggVennDiagram(.))
+  map(~ ggVennDiagram(.)) %>% .[order(names(.))]
 
 data = global_state$results %>%
   map(~ pluck(., "prepared_data")) %>%
@@ -74,7 +74,7 @@ data = global_state$results %>%
         inner_join(global_state$results$GSEA_PAVER_result$goterms_df) %>%
         select(-GOID)
     )
-  )
+  ) %>% .[order(names(.))]
 
 global_state$results <- c(global_state$results, list(`twopoddata` = data))
 
@@ -114,7 +114,7 @@ plots = global_state$results %>%
   nest() %>%
   transmute(Group, data = map(data, ~deframe(.))) %>%
   deframe() %>%
-  map(~ ggVennDiagram(.))
+  map(~ ggVennDiagram(.)) %>% .[order(names(.))]
 
 data = global_state$results %>%
   map(~ pluck(., "prepared_data")) %>%
@@ -150,7 +150,7 @@ data = global_state$results %>%
         inner_join(global_state$results$GSEA_PAVER_result$goterms_df) %>%
         select(-GOID)
     )
-  )
+  ) %>% .[order(names(.))]
 
 fourpoddata <- data %>% 
   map(bind_rows) %>%
