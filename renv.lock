@@ -1170,14 +1170,14 @@
     },
     "drugfindR": {
       "Package": "drugfindR",
-      "Version": "0.99.3",
+      "Version": "0.0.4",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "CogDisResLab",
-      "RemoteRepo": "DrugFindR",
-      "RemoteRef": "main",
-      "RemoteSha": "925b9677e57a485078a63b41721da07a0d5664d9",
+      "RemoteRepo": "drugfindR",
+      "RemoteRef": "480026a45b133b93e34a9cbccc2aa439b199ec9f",
+      "RemoteSha": "480026a45b133b93e34a9cbccc2aa439b199ec9f",
       "Requirements": [
         "R",
         "dplyr",
@@ -1190,7 +1190,7 @@
         "stringr",
         "tibble"
       ],
-      "Hash": "4a7ae68f64dabc7ba7c9e0ba45b159ba"
+      "Hash": "319c2632173259a69aa05c3e46c1939f"
     },
     "dtplyr": {
       "Package": "dtplyr",
