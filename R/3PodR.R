@@ -25,6 +25,8 @@ suppressPackageStartupMessages({
   library(randomcoloR)
   library(ComplexHeatmap)
   
+  options(repos = BiocManager::repositories())
+  
   source("R/utils.R")
   
   set.seed(123)
