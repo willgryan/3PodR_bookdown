@@ -40,7 +40,6 @@ combined_deg_heatmap <- function(X, num_genes = 50) {
   
   ht = ComplexHeatmap::Heatmap(
     mat,
-    height = unit(1.25, "mm") * nrow(mat),
     column_names_rot = 0,
     column_names_gp = grid::gpar(fontsize = 8),
     column_names_centered = TRUE,

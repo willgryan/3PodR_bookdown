@@ -20,7 +20,8 @@ knitr::opts_chunk$set(
   echo = F,
   out.width = '100%',
   out.height = '100%',
-  fig.align = 'center'
+  fig.align = 'center',
+  dpi=300
 )
 options(readr.show_col_types = FALSE,
         timeout = 999)
