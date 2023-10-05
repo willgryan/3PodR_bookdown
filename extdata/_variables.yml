@@ -1,8 +1,8 @@
 ###User Input Data
 species: human
-design: "design.csv"
-counts: "counts.csv"
 gmt: "assets/Human_GOALL_no_GO_iea_May_01_2023_symbol.gmt"
+#design: "design.csv"
+#counts: "counts.csv"
 data:
     - 
         group1: "Disease A"
