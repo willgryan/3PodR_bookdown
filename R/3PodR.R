@@ -93,7 +93,7 @@ global_state$lincs_fda <- read_csv(paste0("extdata/", global_state$lincs_fda))
 #Theses are files for PAVER
 global_state$embeddings <- readRDS(paste0("extdata/", global_state$embeddings))
 
-global_state$ontology_index <- readRDS(paste0("extdata/", global_state$ontology_index))
+global_state$term2name <- readRDS(paste0("extdata/", global_state$term2name))
 
 #Read counts and design if specified
 if (!is_empty(global_state$design) & !is_empty(global_state$counts)) {

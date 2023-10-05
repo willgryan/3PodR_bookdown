@@ -58,7 +58,7 @@ fgsea::gmtPathways(paste0(url, gmt)) %>%
 ###PAVER files
 embeddings = readRDS(url("https://github.com/willgryan/PAVER_embeddings/raw/main/2023-03-06/embeddings_2023-03-06.RDS"))
 
-ontology_index = readRDS(url("https://github.com/willgryan/PAVER_embeddings/raw/main/2023-03-06/ontology_2023-03-06.RDS"))
+term2name = readRDS(url("https://github.com/willgryan/PAVER_embeddings/raw/main/2023-03-06/term2name_2023-03-06.RDS"))
 
 ###SCRAPE FOR FDA METADATA
 scrape=F

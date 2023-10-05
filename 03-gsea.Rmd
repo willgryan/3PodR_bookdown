@@ -60,7 +60,7 @@ input = global_state$data %>%
   distinct(GOID, Group, .keep_all = T) %>%
   pivot_wider(names_from = Group, values_from = NES)
 
-GSEA_PAVER_result <- quiet(PAVER::prepare_data(input, global_state$embeddings, global_state$ontology_index) %>%
+GSEA_PAVER_result <- quiet(PAVER::prepare_data(input, global_state$embeddings, global_state$term2name) %>%
   PAVER::generate_themes())
 
 global_state$results <- c(global_state$results, lst(GSEA_PAVER_result))

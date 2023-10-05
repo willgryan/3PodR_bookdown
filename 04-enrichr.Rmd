@@ -34,7 +34,7 @@ input = global_state$data %>%
   distinct(GOID, Group, .keep_all = T) %>%
   pivot_wider(names_from = Group, values_from = CS)
 
-ENRICHR_PAVER_result <- quiet(PAVER::prepare_data(input, global_state$embeddings, global_state$ontology_index) %>%
+ENRICHR_PAVER_result <- quiet(PAVER::prepare_data(input, global_state$embeddings, global_state$term2name) %>%
   PAVER::generate_themes())
 
 global_state$results <- c(global_state$results, lst(ENRICHR_PAVER_result))

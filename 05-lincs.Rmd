@@ -135,7 +135,7 @@ input = global_state$data %>%
   distinct(GOID, Group, .keep_all = T) %>%
   pivot_wider(names_from = Group, values_from = CS)
 
-LINCS_PAVER_result <- quiet(PAVER::prepare_data(input, global_state$embeddings, global_state$ontology_index) %>%
+LINCS_PAVER_result <- quiet(PAVER::prepare_data(input, global_state$embeddings, global_state$term2name) %>%
   PAVER::generate_themes(minClusterSize = 200))
 
 global_state$results <- c(global_state$results, lst(LINCS_PAVER_result))
