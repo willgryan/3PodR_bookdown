@@ -351,10 +351,10 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "PAVER",
       "RemoteUsername": "willgryan",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "1b2b51c197602af91dcd6931111afbd78e713374",
+      "RemoteRepo": "PAVER",
+      "RemoteRef": "main",
+      "RemoteSha": "08da31317f52ccccaf27050a921112889dcbe672",
       "Requirements": [
         "ComplexHeatmap",
         "R",
@@ -376,7 +376,7 @@
         "tidyr",
         "umap"
       ],
-      "Hash": "9e0f8575eafb17eba6d2f6d0203be463"
+      "Hash": "a1485c5ed23d2a56b385a0ac112ee81d"
     },
     "R6": {
       "Package": "R6",
@@ -1168,8 +1168,8 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "drugfindR",
       "RemoteUsername": "CogDisResLab",
+      "RemoteRepo": "drugfindR",
       "RemoteRef": "480026a45b133b93e34a9cbccc2aa439b199ec9f",
       "RemoteSha": "480026a45b133b93e34a9cbccc2aa439b199ec9f",
       "Requirements": [
@@ -1928,7 +1928,7 @@
     },
     "htmltools": {
       "Package": "htmltools",
-      "Version": "0.5.6",
+      "Version": "0.5.5",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1941,7 +1941,7 @@
         "rlang",
         "utils"
       ],
-      "Hash": "a2326a66919a3311f7fbb1e3bf568283"
+      "Hash": "ba0240784ad50a62165058a27459304a"
     },
     "htmlwidgets": {
       "Package": "htmlwidgets",
@@ -2933,7 +2933,7 @@
     },
     "rmarkdown": {
       "Package": "rmarkdown",
-      "Version": "2.24",
+      "Version": "2.23",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2953,7 +2953,7 @@
         "xfun",
         "yaml"
       ],
-      "Hash": "3854c37590717c08c32ec8542a2e0a35"
+      "Hash": "79f14e53725f28900d936f692bfdd69f"
     },
     "rpart": {
       "Package": "rpart",
@@ -3649,14 +3649,14 @@
     },
     "xfun": {
       "Package": "xfun",
-      "Version": "0.40",
+      "Version": "0.39",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "stats",
         "tools"
       ],
-      "Hash": "be07d23211245fc7d4209f54c4e4ffc8"
+      "Hash": "8f56e9acb54fb525e66464d57ab58bcb"
     },
     "xml2": {
       "Package": "xml2",
