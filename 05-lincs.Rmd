@@ -135,8 +135,14 @@ input = global_state$data %>%
   distinct(GOID, Group, .keep_all = T) %>%
   pivot_wider(names_from = Group, values_from = CS)
 
+minClusterSize = 5
+maxCoreScatter = 0.33
+minGap = (1 - maxCoreScatter) * 3 / 4
+
 LINCS_PAVER_result <- quiet(PAVER::prepare_data(input, global_state$embeddings, global_state$term2name) %>%
-  PAVER::generate_themes(minClusterSize = 200))
+  PAVER::generate_themes(maxCoreScatter = maxCoreScatter,
+  minGap = minGap,
+  minClusterSize = minClusterSize))
 
 global_state$results <- c(global_state$results, lst(LINCS_PAVER_result))
 

@@ -3,6 +3,26 @@
     "Version": "4.3.1",
     "Repositories": [
       {
+        "Name": "BioCsoft",
+        "URL": "https://bioconductor.org/packages/3.18/bioc"
+      },
+      {
+        "Name": "BioCann",
+        "URL": "https://bioconductor.org/packages/3.18/data/annotation"
+      },
+      {
+        "Name": "BioCexp",
+        "URL": "https://bioconductor.org/packages/3.18/data/experiment"
+      },
+      {
+        "Name": "BioCworkflows",
+        "URL": "https://bioconductor.org/packages/3.18/workflows"
+      },
+      {
+        "Name": "BioCbooks",
+        "URL": "https://bioconductor.org/packages/3.18/books"
+      },
+      {
         "Name": "CRAN",
         "URL": "https://cloud.r-project.org"
       }
@@ -334,7 +354,7 @@
       "RemoteUsername": "willgryan",
       "RemoteRepo": "PAVER",
       "RemoteRef": "main",
-      "RemoteSha": "8698f2f96cc9d5b454ff72b25e93dfd4c951b9b9",
+      "RemoteSha": "19271b2c1b23a8369ea894ca35e00a9e6e485eef",
       "Requirements": [
         "ComplexHeatmap",
         "R",
@@ -356,7 +376,7 @@
         "tidyr",
         "umap"
       ],
-      "Hash": "7bc24093bb3d1b159159f0ed49864eab"
+      "Hash": "0209ade5379eed7318de496e08325e27"
     },
     "R6": {
       "Package": "R6",
