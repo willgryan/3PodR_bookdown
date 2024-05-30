@@ -8,7 +8,7 @@ These are Enrichr pathways.
 
 ```{r, results='asis'}
 global_state$data %<>%
-  map( ~ update_list(., bpn = {system("sleep 3"); quiet(do_enrichr_pod(.$bpn))}))
+  map( ~ update_list(., bpn = {system("sleep 3"); quiet(do_enrichr_pod(.$bpn, useFDR=FALSE))}))
 
 global_state$data %>%
   map(~ knit_child(

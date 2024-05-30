@@ -14,7 +14,8 @@ global_state$data %<>%
       .$bpn,
       gmtfile = paste0("extdata/", global_state$gmt),
       rankWithSignificance = TRUE,
-      species = NULL
+      species = NULL,
+      useFDR = FALSE,
     )
   ))
 
