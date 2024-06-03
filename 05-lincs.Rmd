@@ -50,25 +50,21 @@ get_ilincs_results <- function(X) {
         select(-Symbol_old)
   }
   
-  concordant <- investigate_signature(
+  signatures <- investigateSignature(
     X,
-    filter_threshold = 0,
-    output_lib = "CP",
-    gene_column = "Symbol",
-    logfc_column = "log2FoldChange",
-    pval_column = "pvalue"
-  ) %>% inner_join(get_ilincs_metadata(.$TargetSignature), by = "TargetSignature") %>%
-    left_join(global_state$lincs_fda, by = c("Target" = "sm_name"))
+    filterThreshold = 0,
+    outputLib = "CP",
+    geneColumn = "Symbol",
+    logfcColumn = "log2FoldChange",
+    pvalColumn = "pvalue"
+  )
   
-  discordant <- investigate_signature(
-    X,
-    filter_threshold = 0,
-    output_lib = "CP",
-    gene_column = "Symbol",
-    logfc_column = "log2FoldChange",
-    pval_column = "pvalue",
-    discordant = T
-  ) %>% inner_join(get_ilincs_metadata(.$TargetSignature), by = "TargetSignature") %>%
+  concordant <- signatures %>%
+    filter(Similarity >= 0) %>% inner_join(get_ilincs_metadata(.$TargetSignature), by = "TargetSignature") %>%
+    left_join(global_state$lincs_fda, by = c("Target" = "sm_name"))
+    
+  discordant <- signatures %>%
+    filter(Similarity < 0) %>% inner_join(get_ilincs_metadata(.$TargetSignature), by = "TargetSignature") %>%
     left_join(global_state$lincs_fda, by = c("Target" = "sm_name"))
   
   concordant_moa_report <- generate_moa_report(concordant)
