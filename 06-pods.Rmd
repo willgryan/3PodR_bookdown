@@ -7,6 +7,7 @@ plot = global_state$results %>%
   map( ~ pluck(., "prepared_data")) %>%
   set_names(c("GSEA", "Enrichr", "LINCS")) %>%
   bind_rows(.id = "Pod") %>%
+  mutate(Group = str_replace(Group, "-C|-D", "")) %>%
   mutate(ID = paste0(Group, "_", Pod)) %>%
   select(ID, GOID) %>%
   group_by(GOID) %>%
