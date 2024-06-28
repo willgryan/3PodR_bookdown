@@ -108,6 +108,7 @@ plots = global_state$results %>%
   compact() %>%
   set_names(c("GSEA", "Enrichr", "LINCS")) %>%
   bind_rows(.id = "Pod") %>%
+  mutate(Group = str_replace(Group, "-C|-D", "")) %>%
   group_by(Group, Pod) %>%
   summarise(GOID = list(GOID)) %>%
   group_by(Group) %>%
@@ -121,6 +122,7 @@ data = global_state$results %>%
   compact() %>%
   set_names(c("GSEA", "Enrichr", "LINCS")) %>%
   bind_rows(.id = "Pod") %>%
+  mutate(Group = str_replace(Group, "-C|-D", "")) %>%
   mutate(value = ifelse(Pod == "Enrichr" | Pod == "LINCS", sign(value) * 2^(abs(value)-1), value)) %>%
   group_by(Group) %>%
   nest %>%

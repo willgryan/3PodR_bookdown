@@ -128,8 +128,8 @@ input = global_state$data %>%
   bind_rows(.id = "Group") %>%
   select(GOID, CS = Combined.Score, Group) %>%
   mutate(CS = sign(CS) * log2(abs(CS)) + 1) %>%
-  distinct(GOID, Group, .keep_all = T) %>%
-  pivot_wider(names_from = Group, values_from = CS)
+  mutate(Type = ifelse(CS > 0, "C", "D")) %>%
+  pivot_wider(names_from = c(Group, Type), values_from = CS, names_sep = "-")
 
 minClusterSize = 5
 maxCoreScatter = 0.33
