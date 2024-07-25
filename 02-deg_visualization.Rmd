@@ -66,28 +66,59 @@ global_state$data %>%
 ## Volcano Plots
 ```{r, results='asis'}
 #Input: DEG table
-volcano_plot <- function(X) {
+volcano_plot <- function(X, showFDRLine=TRUE, alpha = 0.05) {
   top10 <- X %>%
-    filter(pvalue <= 0.05) %>%
+    filter(pvalue <= alpha) %>%
     arrange(desc(abs(log2FoldChange))) %>%
     slice_head(n = 10) %>%
     pull(Symbol)
-  
-  #label
-  ns <- paste0("NS (", sum(X$pvalue > 0.05), ")")
-  up <-
-    paste0("Up (", sum(X$pvalue <= 0.05 & X$log2FoldChange > 0), ")")
-  down <-
-    paste0("Down (", sum(X$pvalue <= 0.05 &
-                           X$log2FoldChange < 0), ")")
+
+  #adjusted p values
+  if (showFDRLine) {
+    X$padj = p.adjust(X$pvalue, method = "fdr")
+    closest_row <- X[which.min(abs(X$padj - alpha)), ]
+    closest_pvalue <- closest_row$pvalue
+    
+    #label
+    ns <- paste0("NS (", sum(X$padj > alpha), ")")
+    up <-
+      paste0("Up (", sum(X$padj <= alpha &
+                           X$log2FoldChange > 0), ")")
+    down <-
+      paste0("Down (", sum(X$padj <= alpha &
+                             X$log2FoldChange < 0), ")")
+    
+    X <- X %>%
+      mutate(
+        Significant = case_when(
+          padj > alpha ~ "NS",
+          padj <= alpha & log2FoldChange >= 0 ~ "Up",
+          padj <= alpha & log2FoldChange < 0 ~ "Down"
+        ) %>% as.factor()
+      )
+      
+  } else {
+    #label
+    ns <- paste0("NS (", sum(X$pvalue > alpha), ")")
+    up <-
+      paste0("Up (", sum(X$pvalue <= alpha &
+                           X$log2FoldChange > 0), ")")
+    down <-
+      paste0("Down (", sum(X$pvalue <= alpha &
+                             X$log2FoldChange < 0), ")")
+    
+    X <- X %>%
+      mutate(
+        Significant = case_when(
+          pvalue > alpha ~ "NS",
+          pvalue <= alpha & log2FoldChange >= 0 ~ "Up",
+          pvalue <= alpha & log2FoldChange < 0 ~ "Down"
+        ) %>% as.factor()
+      )
+  }
   
   plot <- X %>%
     mutate(
-      Significant = case_when(
-        pvalue > 0.05 ~ "NS",
-        pvalue <= 0.05 & log2FoldChange >= 0 ~ "Up",
-        pvalue <= 0.05 & log2FoldChange < 0 ~ "Down"
-      ) %>% as.factor(),
       top10label = if_else(Symbol %in% top10, Symbol, NA_character_)
     ) %>%
     ggplot(aes(
@@ -100,7 +131,8 @@ volcano_plot <- function(X) {
     scale_color_manual(labels = c(down, ns, up),
                        values = c("blue", "black", "red")) +
     geom_text_repel() +
-    geom_hline(linetype='dotted', yintercept = -log10(0.05), col = "black") +
+    geom_hline(linetype='dotted', yintercept = -log10(alpha), col = "black") +
+    {if(showFDRLine) geom_hline(linetype='dotted', yintercept = -log10(closest_pvalue), col = "black")} +
     theme_pubr()
   return(plot)
 }
