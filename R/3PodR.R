@@ -43,6 +43,7 @@ read_deg <- function(file) {
     filter(if_all(everything(), ~ . != '')) %>%
     drop_na() %>%
     mutate(Symbol = str_trim(Symbol)) %>%
+    mutate(Symbol = if_else(str_detect(Symbol, "///"), str_split_fixed(Symbol, "///", 2)[, 1], Symbol)) %>%
     distinct(Symbol, .keep_all = TRUE)
 }
 
@@ -53,6 +54,7 @@ read_counts <- function(file) {
     filter(if_all(everything(), ~ . != '')) %>%
     drop_na() %>%
     mutate(Symbol = str_trim(Symbol)) %>%
+    mutate(Symbol = if_else(str_detect(Symbol, "///"), str_split_fixed(Symbol, "///", 2)[, 1], Symbol)) %>%
     distinct(Symbol, .keep_all = TRUE)
 }
 
@@ -63,7 +65,8 @@ fix_hgnc <- function(X, map) {
     mutate(Suggested.Symbol = if_else(Suggested.Symbol == "" | is.na(Suggested.Symbol), Symbol, Suggested.Symbol),
            Suggested.Symbol = if_else(str_detect(Suggested.Symbol, ".+?(?= ///)"), str_extract(Suggested.Symbol, ".+?(?= ///)"), Suggested.Symbol)) %>%
     inner_join(X %>% rename(Symbol = 1), by = "Symbol") %>%
-    select(-Symbol, Symbol = Suggested.Symbol)
+    select(-Symbol, Symbol = Suggested.Symbol) %>%
+    distinct(Symbol, .keep_all=TRUE)
 }
 
 ###Setup global report state###

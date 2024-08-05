@@ -46,6 +46,7 @@ combined_deg_heatmap <- function(X, num_genes = 50) {
     row_names_gp = grid::gpar(fontsize = 4),
     show_row_names = TRUE,
     show_row_dend = FALSE,
+    show_column_dend = FALSE,
     show_heatmap_legend = FALSE
   )
   
