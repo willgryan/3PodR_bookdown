@@ -27,7 +27,7 @@ do_enrichr <- function(X) {
 #Input: Vector of LINCS signature ids from drugFindr
 #Output: Tibble of iLINCS signature metadata
 get_ilincs_metadata <- function(X) {
-  url <- "http://www.ilincs.org/api/SignatureMeta/findMany"
+  url <- "https://www.ilincs.org/api/SignatureMeta/findMany"
   body <- list(signatures = toJSON(X))
   
   metadata <- POST(url, body = body, encode = "json") %>%
